@@ -90,6 +90,7 @@
 
 
 #include "net/ip/uipopt.h"
+#include "net/newip/type.h"
 
 /* For memcmp */
 #include <string.h>
@@ -108,7 +109,42 @@ typedef union uip_ip6addr_t {
   uint16_t u16[8];
 } uip_ip6addr_t;
 
-#if NETSTACK_CONF_WITH_IPV6
+/* newip */
+
+struct uip_nip_addr_field {
+  union {
+    uint8_t u8[16];
+    uint16_t u16[8];
+    uint32_t u32[4];
+  }u;
+};
+
+struct uip_nip_top_addr {
+  uint8_t bitlen;
+  struct nip_addr_field v;
+};
+
+struct uip_nip_level_addr {
+  uint8_t type;
+  uint8_t len;
+  union {
+    struct uip_nip_top_addr top_addr;
+    struct uip_nip_addr_field field;
+  }u;
+};
+
+struct uip_newipaddr {
+  uint8_t level_num;
+  struct uip_nip_level_addr addrs[UIP_MAX_NEWIP_LEVEL];
+};
+
+typedef struct uip_nip_addr_field uip_newipaddr_t;
+
+/* newip end */
+
+#if NETSTACK_CONF_WITH_NIP
+typedef uip_newipaddr_t uip_ipaddr_t;
+#elif NETSTACK_CONF_WITH_IPV6
 typedef uip_ip6addr_t uip_ipaddr_t;
 #else /* NETSTACK_CONF_WITH_IPV6 */
 typedef uip_ip4addr_t uip_ipaddr_t;
@@ -1006,6 +1042,25 @@ struct uip_udp_conn *uip_udp_new(const uip_ipaddr_t *ripaddr, uint16_t rport);
     (addr)->u8[14] = addr14;                                     \
     (addr)->u8[15] = addr15;                                     \
   } while(0)
+
+/*
+new ip:
+some marcos for construct a newip address
+*/
+#define uip_nipaddr_set_src(addr) addr->type = NEWIP_SOURCE_LOCATOR;
+
+#define uip_nipaddr_set_dest(addr) addr->type = NEWIP_DESTINATION_LOCATOR;
+
+//TODO:优化宏，灵活编址
+#define uip_nipaddr_u32(addr, level, addr0, addr1, addr2, addr3) do { \
+  (addr)->u.top_addr.v.u.u32[0] = addr0;  \
+  (addr)->u.top_addr.v.u.u32[1] = addr1;  \
+  (addr)->u.top_addr.v.u.u32[2] = addr2;  \
+  (addr)->u.top_addr.v.u.u32[3] = addr3;  \
+} while(0)                                                                                                                                             
+
+/* new ip end */
+
 
 
 /**

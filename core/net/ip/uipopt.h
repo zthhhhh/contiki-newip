@@ -102,6 +102,9 @@
  */
 #define UIP_FIXEDADDR    0
 
+/* for newip */
+#define UIP_MAX_NEWIP_LEVEL 4
+
 /**
  * Ping IP address assignment.
  *
@@ -281,6 +284,8 @@ void uip_log(char *msg);
 
 /** The maximum transmission unit at the IP Layer*/
 #define UIP_LINK_MTU 1280
+
+#define NETSTACK_CONF_WITH_NIP 1
 
 #ifndef NETSTACK_CONF_WITH_IPV6
 /** Do we use IPv6 or not (default: no) */
