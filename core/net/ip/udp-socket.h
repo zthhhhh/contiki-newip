@@ -71,6 +71,14 @@ struct udp_socket {
 
 };
 
+struct newip_udp_socket {
+  udp_socket_input_callback_t input_callback;
+  void *ptr;
+
+  struct process *p;
+  struct newip_udp_conn *udp_conn;
+}
+
 /**
  * \brief      Register a UDP socket
  * \param c    A pointer to the struct udp_socket that should be registered
@@ -189,5 +197,13 @@ int udp_socket_sendto(struct udp_socket *c,
  *
  */
 int udp_socket_close(struct udp_socket *c);
+
+/* newip: some functions for newip programming */ 
+
+int newip_udp_socket_bind(struct newip_udp_socket *c, uint16_t local_port);
+int newip_udp_socket_connect(struct newip_udp_socket *c, newip_ipaddr_t *remote_addr, uint16_t remote_port);
+int newip_udp_socket_sendto(struct newip_udp_socket *c,const void *data, uint16_t datalen,const newip_ipaddr_t *addr, uint16_t port);
+int newip_udp_socket_register(struct newip_udp_socket *c, void *ptr, udp_socket_input_callback_t input_callback);
+/* newip end */
 
 #endif /* UDP_SOCKET_H */

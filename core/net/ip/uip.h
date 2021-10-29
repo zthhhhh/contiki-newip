@@ -52,6 +52,8 @@
 #ifndef UIP_H_
 #define UIP_H_
 
+#define NEWIP_MAX_LEVEL 10;
+
 /* Header sizes. */
 #if NETSTACK_CONF_WITH_IPV6
 #define UIP_IPH_LEN    40
@@ -107,6 +109,19 @@ typedef union uip_ip6addr_t {
   uint8_t  u8[16];			/* Initializer, must come first. */
   uint16_t u16[8];
 } uip_ip6addr_t;
+
+typedef struct newip_ipaddr_per_level {
+  uint8_t length;
+  union top_addr {
+    uint8_t u8[4];
+    uint16_t u16[2];
+    uint32_t u32;
+  } addr;
+} newip_ipaddr_per_level;
+typedef struct newip_ipaddr_t {
+  uint8_t level;
+  newip_ipaddr_per_level addr[NEWIP_MAX_LEVEL];
+} newip_ipaddr_t;
 
 #if NETSTACK_CONF_WITH_IPV6
 typedef uip_ip6addr_t uip_ipaddr_t;
@@ -963,6 +978,11 @@ struct uip_udp_conn *uip_udp_new(const uip_ipaddr_t *ripaddr, uint16_t rport);
     (addr)->u8[3] = addr3;                              \
   } while(0)
 
+#define newip_ipaddr(addr,level,length,addr1) do { \
+                                                   \
+                                                   \     
+} while(0)
+
 /**
  * Construct an IPv6 address from eight 16-bit words.
  *
@@ -1402,6 +1422,15 @@ struct uip_udp_conn {
   uint8_t  ttl;          /**< Default time-to-live. */
 
   /** The application state. */
+  uip_udp_appstate_t appstate;
+};
+
+struct newip_udp_conn {
+  newip_ipaddr_t ripaddr;
+  uint16_t lport;
+  uint16_t rport;
+  uint8_t ttl;
+
   uip_udp_appstate_t appstate;
 };
 

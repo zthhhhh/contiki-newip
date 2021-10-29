@@ -74,10 +74,9 @@ receiver(struct udp_socket *c,
 //unicast_example_process进程实现
 PROCESS_THREAD(unicast_example_process, ev, data)
 {
-  //定义变量保存ipv6的地址
-  uip_ip6addr_t ip6addr;
-  //定义变量保存ipv4的地址
-  uip_ip4addr_t ip4addr;
+
+  newip_ipaddr_t ipaddr;
+
   //进程开始
   PROCESS_BEGIN();
 #if 0
@@ -96,15 +95,15 @@ PROCESS_THREAD(unicast_example_process, ev, data)
 
   /* Register UDP socket callback */
   //注册udp接收回调函数
-  udp_socket_register(&s, NULL, receiver);
+  newip_udp_socket_register(&s, NULL, receiver);
 
   /* Bind UDP socket to local port */
   //端口绑定
-  udp_socket_bind(&s, PORT);
+  newip_udp_socket_bind(&s, PORT);
 
   /* Connect UDP socket to remote port */
   //连接服务器
-  udp_socket_connect(&s, NULL, PORT);
+  newip_udp_socket_connect(&s, NULL, PORT);
 
   while(1) {
 
@@ -116,17 +115,17 @@ PROCESS_THREAD(unicast_example_process, ev, data)
     //etimer_set(&send_timer, (random_rand() % SEND_INTERVAL));
     //等待定时时间
     PROCESS_WAIT_UNTIL(etimer_expired(&periodic_timer));
-    //将ipv4地址保存到变量中;开发板将通过路由节点与这个ip地址的设备通讯
-    uip_ipaddr(&ip4addr, 192,168,18,98);
-    //ip64地址转换
-    ip64_addr_4to6(&ip4addr, &ip6addr);
+
+    //赋值newip地址，第0层地址长度为1，数值为1
+    newip_ipaddr(&ipaddr,0,1,1);
+    newip_ipaddr(&ipaddr,1,1,1);
     //输出循环次数
     printf("Sending unicast %d\n",i);
     i++;
     //发送数据
-    udp_socket_sendto(&s,
+    newip_udp_socket_sendto(&s,
                       &i, 1,
-                      &ip6addr, PORT);
+                      &ipaddr, PORT);
 
     //PROCESS_WAIT_UNTIL(etimer_expired(&periodic_timer));
   }
